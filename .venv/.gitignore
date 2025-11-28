@@ -1,3 +1,10 @@
+# Ignorowane foldery Pythona
 .venv/
+__pycache__/
+*.pyc
 
-weather_cache.json# created by virtualenv automatically
+# Ignorowane pliki IDE
+.idea/
+
+# Ignorowane pliki cache
+weather_cache.json
