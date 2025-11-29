@@ -1,0 +1,10 @@
+# Ignorowane foldery Pythona
+.venv/
+__pycache__/
+*.pyc
+
+# Ignorowane pliki IDE
+.idea/
+
+# Ignorowane pliki cache
+weather_cache.json

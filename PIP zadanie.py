@@ -30,11 +30,15 @@ class WeatherForecast:
             json.dump(self.cache, file, indent=4)
 
     def _get_api_result(self, date):
-        url = f"https://api.open-meteo.com/v1/forecast?latitude={self.latitude}&longitude={self.longitude}&hourly=rain&daily=rain_sum&timezone=Europe%2FLondon&start_date={date}&end_date={date}"
+        url = "https://api.open-meteo.com/v1/forecast?latitude={}&longitude={}&hourly=rain&daily=rain_sum&timezone=Europe%2FLondon&start_date={}&end_date={}".format(
+            self.latitude, self.longitude, date, date
+        )
 
         try:
             response = requests.get(url)
-            response.raise_for_status()
+            if response.status_code != 200:
+                return -1.0
+
             json_data = response.json()
             rain_sum = json_data['daily']['rain_sum'][0]
             return rain_sum
@@ -42,14 +46,13 @@ class WeatherForecast:
         except (requests.exceptions.RequestException, KeyError, IndexError, TypeError):
             return -1.0
 
-
-    def __getitem__(self, date: str) -> str:
+    def __getitem__(self, date):
         """Pobieranie: forecast[date]"""
         if date in self.cache:
-            print(f"-> Wynik dla {date} z pliku.")
+            print("-> Wynik dla {} z pliku.".format(date))
             return self.cache[date]
 
-        print(f"-> Pobieram z API dla daty: {date}")
+        print("-> Pobieram z API dla daty: {}".format(date))
 
         rain_amount = self._get_api_result(date)
 
@@ -64,20 +67,20 @@ class WeatherForecast:
 
         return weather_info
 
-    def __setitem__(self, date: str, weather_info: str):
+    def __setitem__(self, date, weather_info):
         """Zapis: forecast[date] = info"""
         self.cache[date] = weather_info
         self._save_cache()
 
     def __iter__(self):
         """Iterowanie po kluczach: for date in forecast: ..."""
-        yield from self.cache.keys()
+        for date in self.cache:
+            yield date
 
     def items(self):
         """Generator par (data, pogoda)"""
         for date, weather in self.cache.items():
             yield (date, weather)
-
 
 
 def get_date_input():
@@ -93,15 +96,15 @@ if __name__ == "__main__":
 
     forecast = WeatherForecast()
     searched_date = get_date_input()
-    print(f"\n--- Sprawdzanie dla daty: {searched_date} ---")
+    print("\n--- Sprawdzanie dla daty: {} ---".format(searched_date))
 
     result = forecast[searched_date]
-    print(f"Ostateczny wynik dla {searched_date}: {result}")
+    print("Ostateczny wynik dla {}: {}".format(searched_date, result))
 
     print("\n--- Znane dane (iterator) ---")
     for date in forecast:
-        print(f"Data: {date}")
+        print("Data: {}".format(date))
 
     print("\n--- Pary (data, pogoda) ---")
     for date, weather in forecast.items():
-        print(f"W dniu {date}: {weather}")
+        print("W dniu {}: {}".format(date, weather))
